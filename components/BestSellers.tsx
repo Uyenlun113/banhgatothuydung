@@ -11,6 +11,11 @@ interface Product {
   originalPrice?: number;
   images: string[];
   rating?: number;
+  category?: {
+    _id: string;
+    name: string;
+  };
+  description?: string;
 }
 
 export default function BestSellers() {
