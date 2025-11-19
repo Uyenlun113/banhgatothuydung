@@ -5,57 +5,88 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30; // Tăng timeout lên 30 giây cho upload lớn
 
+// Helper function để luôn trả về JSON response
+function jsonResponse(data: any, status: number = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check Cloudinary config
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       console.error('Cloudinary configuration missing');
-      return NextResponse.json(
+      return jsonResponse(
         { success: false, error: 'Cloudinary configuration is missing. Please check your environment variables.' },
-        { status: 500 }
+        500
       );
     }
 
-    const formData = await request.formData();
+    // Parse formData với error handling
+    let formData: FormData;
+    try {
+      formData = await request.formData();
+    } catch (error: any) {
+      console.error('FormData parse error:', error);
+      return jsonResponse(
+        { success: false, error: 'Lỗi đọc dữ liệu file. Vui lòng thử lại.' },
+        400
+      );
+    }
+
     const file = formData.get('file') as File | null;
 
     if (!file) {
-      return NextResponse.json({ success: false, error: 'Không có file được cung cấp' }, { status: 400 });
+      return jsonResponse({ success: false, error: 'Không có file được cung cấp' }, 400);
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ success: false, error: 'File phải là hình ảnh' }, { status: 400 });
+    if (!file.type || !file.type.startsWith('image/')) {
+      return jsonResponse({ success: false, error: 'File phải là hình ảnh' }, 400);
     }
 
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ 
+      return jsonResponse({ 
         success: false, 
         error: `Kích thước file phải nhỏ hơn 10MB. File hiện tại: ${(file.size / 1024 / 1024).toFixed(2)}MB` 
-      }, { status: 400 });
+      }, 400);
     }
 
     // Upload với timeout
-    const uploadPromise = uploadImage(file);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Upload timeout - quá thời gian chờ')), 25000)
-    );
+    try {
+      const uploadPromise = uploadImage(file);
+      const timeoutPromise = new Promise<string>((_, reject) => 
+        setTimeout(() => reject(new Error('Upload timeout - quá thời gian chờ')), 25000)
+      );
 
-    const url = await Promise.race([uploadPromise, timeoutPromise]) as string;
-    
-    if (!url) {
-      return NextResponse.json({ success: false, error: 'Upload thất bại - không nhận được URL' }, { status: 500 });
+      const url = await Promise.race([uploadPromise, timeoutPromise]);
+      
+      if (!url || typeof url !== 'string') {
+        return jsonResponse({ success: false, error: 'Upload thất bại - không nhận được URL' }, 500);
+      }
+
+      return jsonResponse({ success: true, url });
+    } catch (uploadError: any) {
+      console.error('Cloudinary upload error:', uploadError);
+      const errorMessage = uploadError.message || 'Lỗi upload lên Cloudinary';
+      return jsonResponse(
+        { success: false, error: errorMessage },
+        500
+      );
     }
-
-    return NextResponse.json({ success: true, url });
   } catch (error: any) {
-    console.error('Upload error:', error);
-    const errorMessage = error.message || 'Lỗi không xác định';
-    return NextResponse.json(
+    console.error('Upload route error:', error);
+    // Đảm bảo luôn trả về JSON, không bao giờ throw error
+    const errorMessage = error?.message || 'Lỗi không xác định';
+    return jsonResponse(
       { success: false, error: errorMessage },
-      { status: 500 }
+      500
     );
   }
 }

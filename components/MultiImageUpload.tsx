@@ -35,6 +35,14 @@ export default function MultiImageUpload({ value, onChange, label = 'Hình ảnh
 
           clearTimeout(timeoutId);
 
+          // Kiểm tra Content-Type để đảm bảo là JSON
+          const contentType = res.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await res.text();
+            console.error('Server returned non-JSON response:', text.substring(0, 200));
+            throw new Error(`Server trả về lỗi không hợp lệ (${res.status}). Vui lòng kiểm tra cấu hình Cloudinary.`);
+          }
+
           if (!res.ok) {
             const errorData = await res.json().catch(() => ({ error: 'Lỗi kết nối server' }));
             throw new Error(errorData.error || `Lỗi ${res.status}`);
