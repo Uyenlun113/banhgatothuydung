@@ -70,6 +70,32 @@ JWT_SECRET=your-secret-key
 - ✅ Xem logs trong hosting platform để tìm lỗi cụ thể
 - ✅ Thử upload file nhỏ hơn (< 1MB) để test
 
+### Lỗi "Invalid JSON response" / "Unexpected token '<'"
+**Nguyên nhân:** Server trả về HTML error page thay vì JSON
+
+**Cách khắc phục:**
+1. **Kiểm tra Environment Variables:**
+   - Vào `/api/upload/test` để kiểm tra Cloudinary config
+   - Đảm bảo tất cả 3 biến (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) đã được set
+   - **Quan trọng:** Sau khi thêm/sửa env vars, cần **Redeploy** project
+
+2. **Kiểm tra Body Size Limit:**
+   - Vercel free: 4.5MB limit
+   - Nếu file > 4.5MB, Vercel sẽ trả về error page HTML
+   - Giải pháp: Giảm file size hoặc upgrade plan
+
+3. **Kiểm tra Logs:**
+   - Vào Vercel Dashboard > Deployments > Function Logs
+   - Tìm lỗi cụ thể trong logs
+   - Lỗi thường gặp:
+     - "Cloudinary configuration missing"
+     - "Request entity too large"
+     - "Function timeout"
+
+4. **Test API:**
+   - Truy cập: `https://your-domain.com/api/upload/test`
+   - Kiểm tra response có hiển thị Cloudinary config đúng không
+
 ### API chậm
 - ✅ Kiểm tra MongoDB connection string
 - ✅ Kiểm tra network latency
@@ -79,6 +105,7 @@ JWT_SECRET=your-secret-key
 ### Lỗi 413 (Payload Too Large)
 - Giảm kích thước file upload
 - Hoặc upgrade hosting plan để tăng body size limit
+- Vercel Pro plan: 4.5MB → có thể tăng lên
 
 ## Tối ưu Performance
 

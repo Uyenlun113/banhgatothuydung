@@ -16,10 +16,19 @@ function jsonResponse(data: any, status: number = 200) {
 }
 
 export async function POST(request: NextRequest) {
+  // Wrap toàn bộ function để đảm bảo luôn trả về JSON
   try {
     // Check Cloudinary config
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error('Cloudinary configuration missing');
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      console.error('Cloudinary configuration missing:', {
+        hasCloudName: !!cloudName,
+        hasApiKey: !!apiKey,
+        hasApiSecret: !!apiSecret,
+      });
       return jsonResponse(
         { success: false, error: 'Cloudinary configuration is missing. Please check your environment variables.' },
         500
@@ -74,20 +83,43 @@ export async function POST(request: NextRequest) {
       return jsonResponse({ success: true, url });
     } catch (uploadError: any) {
       console.error('Cloudinary upload error:', uploadError);
-      const errorMessage = uploadError.message || 'Lỗi upload lên Cloudinary';
+      const errorMessage = uploadError?.message || 'Lỗi upload lên Cloudinary';
       return jsonResponse(
         { success: false, error: errorMessage },
         500
       );
     }
   } catch (error: any) {
-    console.error('Upload route error:', error);
+    // Catch mọi lỗi, kể cả lỗi không mong đợi
+    console.error('Upload route error:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+    });
+    
     // Đảm bảo luôn trả về JSON, không bao giờ throw error
     const errorMessage = error?.message || 'Lỗi không xác định';
     return jsonResponse(
-      { success: false, error: errorMessage },
+      { 
+        success: false, 
+        error: errorMessage,
+        // Chỉ thêm detail trong development
+        ...(process.env.NODE_ENV === 'development' && { detail: error?.stack })
+      },
       500
     );
   }
+}
+
+// Export OPTIONS để handle CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
 
