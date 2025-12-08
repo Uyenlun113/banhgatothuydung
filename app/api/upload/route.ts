@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { uploadImage } from '@/lib/cloudinary';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 30; // Tăng timeout lên 30 giây cho upload lớn
+export const maxDuration = 30;
 
 // Helper function để luôn trả về JSON response
 function jsonResponse(data: any, status: number = 200) {
@@ -61,21 +60,21 @@ export async function POST(request: NextRequest) {
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      return jsonResponse({ 
-        success: false, 
-        error: `Kích thước file phải nhỏ hơn 10MB. File hiện tại: ${(file.size / 1024 / 1024).toFixed(2)}MB` 
+      return jsonResponse({
+        success: false,
+        error: `Kích thước file phải nhỏ hơn 10MB. File hiện tại: ${(file.size / 1024 / 1024).toFixed(2)}MB`
       }, 400);
     }
 
     // Upload với timeout
     try {
       const uploadPromise = uploadImage(file);
-      const timeoutPromise = new Promise<string>((_, reject) => 
+      const timeoutPromise = new Promise<string>((_, reject) =>
         setTimeout(() => reject(new Error('Upload timeout - quá thời gian chờ')), 25000)
       );
 
       const url = await Promise.race([uploadPromise, timeoutPromise]);
-      
+
       if (!url || typeof url !== 'string') {
         return jsonResponse({ success: false, error: 'Upload thất bại - không nhận được URL' }, 500);
       }
@@ -96,12 +95,12 @@ export async function POST(request: NextRequest) {
       stack: error?.stack,
       name: error?.name,
     });
-    
+
     // Đảm bảo luôn trả về JSON, không bao giờ throw error
     const errorMessage = error?.message || 'Lỗi không xác định';
     return jsonResponse(
-      { 
-        success: false, 
+      {
+        success: false,
         error: errorMessage,
         // Chỉ thêm detail trong development
         ...(process.env.NODE_ENV === 'development' && { detail: error?.stack })
