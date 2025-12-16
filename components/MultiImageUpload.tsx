@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface MultiImageUploadProps {
   value: string[];
@@ -8,134 +8,89 @@ interface MultiImageUploadProps {
   label?: string;
 }
 
-export default function MultiImageUpload({ value, onChange, label = 'Hình ảnh' }: MultiImageUploadProps) {
+export default function MultiImageUpload({ value, onChange, label = "Hình ảnh" }: MultiImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const signRes = await fetch("/api/upload", { method: "POST" });
+    if (!signRes.ok) throw new Error("Không lấy được chữ ký upload");
+
+    const { cloudName, apiKey, timestamp, signature } = await signRes.json();
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", apiKey);
+    formData.append("timestamp", timestamp);
+    formData.append("signature", signature);
+    formData.append("folder", "ap-cake");
+
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!uploadRes.ok) throw new Error(await uploadRes.text());
+
+    const data = await uploadRes.json();
+    return data.secure_url;
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    const newUrls: string[] = [...value];
 
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+      const results = await Promise.allSettled(Array.from(files).map(uploadToCloudinary));
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const successUrls = results
+        .filter((r): r is PromiseFulfilledResult<string> => r.status === "fulfilled")
+        .map((r) => r.value);
 
-        try {
-          const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-            signal: controller.signal,
-          });
+      const errors = results.filter((r) => r.status === "rejected");
 
-          clearTimeout(timeoutId);
-
-          // Kiểm tra Content-Type để đảm bảo là JSON
-          const contentType = res.headers.get('content-type');
-          if (!contentType || !contentType.includes('application/json')) {
-            const text = await res.text();
-            console.error('Server returned non-JSON response:', text.substring(0, 200));
-            throw new Error(`Server trả về lỗi không hợp lệ (${res.status}). Vui lòng kiểm tra cấu hình Cloudinary.`);
-          }
-
-          if (!res.ok) {
-            const errorData = await res.json().catch(() => ({ error: 'Lỗi kết nối server' }));
-            throw new Error(errorData.error || `Lỗi ${res.status}`);
-          }
-
-          const data = await res.json();
-          if (data.success) {
-            return data.url;
-          } else {
-            throw new Error(data.error || 'Upload thất bại');
-          }
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
-            throw new Error(`Upload ${file.name} quá thời gian chờ`);
-          }
-          throw error;
-        }
-      });
-
-      const uploadedUrls = await Promise.allSettled(uploadPromises);
-      
-      uploadedUrls.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-          newUrls.push(result.value);
-        } else {
-          alert(`Lỗi upload ${files[index]?.name}: ${result.reason?.message || 'Unknown error'}`);
-        }
-      });
-
-      if (newUrls.length > 0) {
-        onChange(newUrls);
+      if (errors.length > 0) {
+        alert(`Có ${errors.length} ảnh upload thất bại`);
       }
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      alert('Lỗi upload ảnh: ' + (error.message || 'Lỗi không xác định'));
+
+      if (successUrls.length > 0) {
+        onChange([...value, ...successUrls]);
+      }
     } finally {
       setUploading(false);
     }
   };
 
   const removeImage = (index: number) => {
-    const newUrls = value.filter((_, i) => i !== index);
-    onChange(newUrls);
+    onChange(value.filter((_, i) => i !== index));
   };
 
   return (
     <div>
       <label className="block text-sm font-medium mb-1">{label}</label>
-      <div className="space-y-4">
-        {value.length > 0 && (
-          <div className="grid grid-cols-4 gap-4">
-            {value.map((url, index) => (
-              <div key={index} className="relative group">
-                <img src={url} alt={`Image ${index + 1}`} className="w-full h-32 object-cover border rounded-lg" />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        <div>
-          <label className="cursor-pointer bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors inline-block">
-            {uploading ? 'Đang tải...' : 'Thêm ảnh'}
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-              disabled={uploading}
-            />
-          </label>
+
+      {value.length > 0 && (
+        <div className="grid grid-cols-4 gap-4 mb-3">
+          {value.map((url, index) => (
+            <div key={index} className="relative">
+              <img src={url} className="w-full h-32 object-cover rounded-lg" />
+              <button
+                type="button"
+                onClick={() => removeImage(index)}
+                className="absolute top-2 right-2 bg-red-600 text-white w-6 h-6 rounded-full"
+              >
+                ×
+              </button>
+            </div>
+          ))}
         </div>
-        <div>
-          <label className="block text-sm text-gray-600 mb-1">Hoặc nhập URLs (phân cách bằng dấu phẩy)</label>
-          <input
-            type="text"
-            value={value.join(', ')}
-            onChange={(e) => {
-              const urls = e.target.value.split(',').map((url) => url.trim()).filter(Boolean);
-              onChange(urls);
-            }}
-            placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-            className="w-full px-4 py-2 border rounded-lg text-sm"
-          />
-        </div>
-      </div>
+      )}
+
+      <label className="cursor-pointer bg-primary-600 text-white px-4 py-2 rounded-lg inline-block">
+        {uploading ? "Đang tải..." : "Thêm ảnh"}
+        <input type="file" accept="image/*" multiple onChange={handleFileChange} hidden disabled={uploading} />
+      </label>
     </div>
   );
 }
-
