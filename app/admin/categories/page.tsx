@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import ImageUpload from '@/components/ImageUpload';
+import ImageUpload from "@/components/ImageUpload";
+import { useEffect, useState } from "react";
 
 interface Category {
   _id: string;
@@ -17,10 +17,10 @@ export default function AdminCategories() {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    image: '',
+    name: "",
+    slug: "",
+    description: "",
+    image: "",
     isActive: true,
   });
 
@@ -29,7 +29,7 @@ export default function AdminCategories() {
   }, []);
 
   const fetchCategories = async () => {
-    const res = await fetch('/api/categories');
+    const res = await fetch("/api/categories");
     const data = await res.json();
     if (data.success) {
       setCategories(data.data);
@@ -38,12 +38,12 @@ export default function AdminCategories() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingCategory ? `/api/categories/${editingCategory._id}` : '/api/categories';
-    const method = editingCategory ? 'PUT' : 'POST';
+    const url = editingCategory ? `/api/categories/${editingCategory._id}` : "/api/categories";
+    const method = editingCategory ? "PUT" : "POST";
 
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
 
@@ -52,9 +52,9 @@ export default function AdminCategories() {
       fetchCategories();
       setShowForm(false);
       setEditingCategory(null);
-      setFormData({ name: '', slug: '', description: '', image: '', isActive: true });
+      setFormData({ name: "", slug: "", description: "", image: "", isActive: true });
     } else {
-      alert('Lỗi: ' + data.error);
+      alert("Lỗi: " + data.error);
     }
   };
 
@@ -63,22 +63,32 @@ export default function AdminCategories() {
     setFormData({
       name: category.name,
       slug: category.slug,
-      description: category.description || '',
-      image: category.image || '',
+      description: category.description || "",
+      image: category.image || "",
       isActive: category.isActive,
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa danh mục này?")) return;
 
-    const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
-      fetchCategories();
-    } else {
-      alert('Lỗi: ' + data.error);
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Xóa thất bại");
+      }
+      setCategories((prev) => prev.filter((c) => c._id !== id));
+
+      alert("✅ Đã xóa danh mục");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Xóa danh mục thất bại");
     }
   };
 
@@ -94,7 +104,7 @@ export default function AdminCategories() {
           onClick={() => {
             setShowForm(true);
             setEditingCategory(null);
-            setFormData({ name: '', slug: '', description: '', image: '', isActive: true });
+            setFormData({ name: "", slug: "", description: "", image: "", isActive: true });
           }}
           className="inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
         >
@@ -106,7 +116,7 @@ export default function AdminCategories() {
         <div className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
+              {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
             </h2>
             <button
               onClick={() => {
@@ -132,8 +142,8 @@ export default function AdminCategories() {
                       name,
                       slug: name
                         .toLowerCase()
-                        .replace(/\s+/g, '-')
-                        .replace(/[^a-z0-9-]/g, ''),
+                        .replace(/\s+/g, "-")
+                        .replace(/[^a-z0-9-]/g, ""),
                     });
                   }}
                   className="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:border-primary-400 focus:outline-none"
@@ -179,7 +189,7 @@ export default function AdminCategories() {
                 type="submit"
                 className="w-full rounded-2xl bg-primary-600 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
               >
-                {editingCategory ? 'Cập nhật danh mục' : 'Tạo danh mục'}
+                {editingCategory ? "Cập nhật danh mục" : "Tạo danh mục"}
               </button>
             </div>
           </form>
@@ -215,10 +225,10 @@ export default function AdminCategories() {
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                        category.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                        category.isActive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                       }`}
                     >
-                      {category.isActive ? 'Đang hiển thị' : 'Đang ẩn'}
+                      {category.isActive ? "Đang hiển thị" : "Đang ẩn"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-semibold">
@@ -241,4 +251,3 @@ export default function AdminCategories() {
     </div>
   );
 }
-

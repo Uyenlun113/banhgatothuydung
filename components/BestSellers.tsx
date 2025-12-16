@@ -93,10 +93,10 @@ export default function BestSellers() {
                 className="flex h-full flex-col rounded-3xl border border-gray-100 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.05)] transition hover:-translate-y-2"
               >
                 <Link href={`/products/${product.slug}`} className="relative block h-60 overflow-hidden rounded-t-3xl">
-                  {product.images && product.images.length > 0 ? (
+                  {product?.images && product?.images.length > 0 ? (
                     <img
-                      src={product.images[0]}
-                      alt={product.name}
+                      src={product?.images[0]}
+                      alt={product?.name}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
                   ) : (
@@ -113,7 +113,7 @@ export default function BestSellers() {
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>
                       {product.category && typeof product.category !== "string"
-                        ? product.category.name
+                        ? product?.category?.name
                         : "Bánh Gato Thúy Dung"}
                     </span>
                     {product.rating && (

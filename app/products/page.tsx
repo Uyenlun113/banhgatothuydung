@@ -183,7 +183,7 @@ function ProductsContent() {
                       <h3 className="font-semibold text-gray-800 mb-2 group-hover:text-primary-600 transition-colors">
                         {product.name}
                       </h3>
-                      {product.category && <p className="text-sm text-gray-500 mb-2">{product.category.name}</p>}
+                      {product.category && <p className="text-sm text-gray-500 mb-2">{product?.category?.name}</p>}
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-primary-600 font-bold text-lg">${product.price.toFixed(2)}</span>

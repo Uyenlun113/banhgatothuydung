@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -17,10 +17,10 @@ export default function AdminDashboard() {
 
   const fetchStats = () => {
     Promise.all([
-      fetch('/api/categories').then((res) => res.json()),
-      fetch('/api/products').then((res) => res.json()),
-      fetch('/api/promotions').then((res) => res.json()),
-      fetch('/api/banners').then((res) => res.json()),
+      fetch("/api/categories").then((res) => res.json()),
+      fetch("/api/products").then((res) => res.json()),
+      fetch("/api/promotions").then((res) => res.json()),
+      fetch("/api/banners").then((res) => res.json()),
     ]).then(([categories, products, promotions, banners]) => {
       setStats({
         categories: categories.success ? categories.data.length : 0,
@@ -32,23 +32,25 @@ export default function AdminDashboard() {
   };
 
   const handleSeedData = async () => {
-    if (!confirm('Bạn có chắc chắn muốn tạo dữ liệu mẫu? Dữ liệu cũ sẽ bị xóa!')) {
+    if (!confirm("Bạn có chắc chắn muốn tạo dữ liệu mẫu? Dữ liệu cũ sẽ bị xóa!")) {
       return;
     }
 
     setSeeding(true);
     try {
-      const res = await fetch('/api/seed');
+      const res = await fetch("/api/seed");
       const data = await res.json();
       if (data.success) {
-        alert(`Đã tạo thành công:\n- ${data.data.categories} danh mục\n- ${data.data.products} sản phẩm\n- ${data.data.banners} banner`);
+        alert(
+          `Đã tạo thành công:\n- ${data.data.categories} danh mục\n- ${data.data.products} sản phẩm\n- ${data.data.banners} banner`
+        );
         fetchStats();
       } else {
-        alert('Lỗi: ' + data.error);
+        alert("Lỗi: " + data.error);
       }
     } catch (error) {
-      console.error('Seed error:', error);
-      alert('Lỗi khi tạo dữ liệu mẫu');
+      console.error("Seed error:", error);
+      alert("Lỗi khi tạo dữ liệu mẫu");
     } finally {
       setSeeding(false);
     }
@@ -58,15 +60,8 @@ export default function AdminDashboard() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Tổng quan</h1>
-        <button
-          onClick={handleSeedData}
-          disabled={seeding}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-        >
-          {seeding ? 'Đang tạo...' : 'Tạo dữ liệu mẫu'}
-        </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-gray-600 mb-2">Danh mục</h3>
@@ -91,16 +86,7 @@ export default function AdminDashboard() {
         <p className="text-gray-600 mb-4">
           Sử dụng menu bên trái để quản lý danh mục, sản phẩm, ưu đãi và banner của cửa hàng.
         </p>
-        {stats.categories === 0 && stats.products === 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800 font-semibold mb-2">💡 Mẹo:</p>
-            <p className="text-yellow-700">
-              Click nút "Tạo dữ liệu mẫu" ở trên để tạo dữ liệu demo với hình ảnh, giúp bạn dễ dàng hình dung website!
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
 }
-

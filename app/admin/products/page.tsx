@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import MultiImageUpload from '@/components/MultiImageUpload';
+import MultiImageUpload from "@/components/MultiImageUpload";
+import { useEffect, useState } from "react";
 
 interface Category {
   _id: string;
@@ -27,14 +27,14 @@ export default function AdminProducts() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    price: '',
-    originalPrice: '',
+    name: "",
+    slug: "",
+    description: "",
+    price: "",
+    originalPrice: "",
     images: [] as string[],
-    category: '',
-    stock: '',
+    category: "",
+    stock: "",
     isActive: true,
     isFeatured: false,
   });
@@ -45,7 +45,7 @@ export default function AdminProducts() {
   }, []);
 
   const fetchProducts = async () => {
-    const res = await fetch('/api/products');
+    const res = await fetch("/api/products");
     const data = await res.json();
     if (data.success) {
       setProducts(data.data);
@@ -53,7 +53,7 @@ export default function AdminProducts() {
   };
 
   const fetchCategories = async () => {
-    const res = await fetch('/api/categories');
+    const res = await fetch("/api/categories");
     const data = await res.json();
     if (data.success) {
       setCategories(data.data);
@@ -70,12 +70,12 @@ export default function AdminProducts() {
       stock: parseInt(formData.stock),
     };
 
-    const url = editingProduct ? `/api/products/${editingProduct._id}` : '/api/products';
-    const method = editingProduct ? 'PUT' : 'POST';
+    const url = editingProduct ? `/api/products/${editingProduct._id}` : "/api/products";
+    const method = editingProduct ? "PUT" : "POST";
 
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(productData),
     });
 
@@ -86,20 +86,20 @@ export default function AdminProducts() {
       setEditingProduct(null);
       resetForm();
     } else {
-      alert('Lỗi: ' + data.error);
+      alert("Lỗi: " + data.error);
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      slug: '',
-      description: '',
-      price: '',
-      originalPrice: '',
+      name: "",
+      slug: "",
+      description: "",
+      price: "",
+      originalPrice: "",
       images: [],
-      category: '',
-      stock: '',
+      category: "",
+      stock: "",
       isActive: true,
       isFeatured: false,
     });
@@ -107,13 +107,13 @@ export default function AdminProducts() {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
-    const categoryId = typeof product.category === 'object' ? product.category._id : product.category;
+    const categoryId = typeof product.category === "object" ? product.category._id : product.category;
     setFormData({
       name: product.name,
       slug: product.slug,
-      description: '',
+      description: "",
       price: product.price.toString(),
-      originalPrice: product.originalPrice?.toString() || '',
+      originalPrice: product.originalPrice?.toString() || "",
       images: (product as any).images || [],
       category: categoryId,
       stock: product.stock.toString(),
@@ -124,14 +124,26 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
 
-    const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
-      fetchProducts();
-    } else {
-      alert('Lỗi: ' + data.error);
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Xóa thất bại");
+      }
+
+      // 🔥 XÓA NGAY TRÊN UI
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+
+      alert("✅ Đã xóa sản phẩm");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Xóa sản phẩm thất bại");
     }
   };
 
@@ -159,7 +171,7 @@ export default function AdminProducts() {
         <div className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">
-              {editingProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}
+              {editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
             </h2>
             <button
               onClick={() => {
@@ -186,8 +198,8 @@ export default function AdminProducts() {
                         name,
                         slug: name
                           .toLowerCase()
-                          .replace(/\s+/g, '-')
-                          .replace(/[^a-z0-9-]/g, ''),
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9-]/g, ""),
                       });
                     }}
                     className="mt-2 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm focus:border-primary-400 focus:outline-none"
@@ -293,7 +305,7 @@ export default function AdminProducts() {
                   type="submit"
                   className="w-full rounded-2xl bg-primary-600 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
-                  {editingProduct ? 'Cập nhật sản phẩm' : 'Tạo sản phẩm'}
+                  {editingProduct ? "Cập nhật sản phẩm" : "Tạo sản phẩm"}
                 </button>
               </div>
             </div>
@@ -316,15 +328,21 @@ export default function AdminProducts() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {products.map((product) => {
-                const categoryName = typeof product.category === 'object' ? product.category.name : 'Danh mục';
+                const categoryName = typeof product.category === "object" ? product?.category?.name : "Danh mục";
                 return (
                   <tr key={product._id}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {product.images && product.images.length > 0 ? (
-                          <img src={product.images[0]} alt={product.name} className="h-10 w-10 rounded-xl object-cover" />
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="h-10 w-10 rounded-xl object-cover"
+                          />
                         ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-xl">🍰</div>
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-xl">
+                            🍰
+                          </div>
                         )}
                         <div>
                           <p className="font-semibold text-gray-900">{product.name}</p>
@@ -337,12 +355,10 @@ export default function AdminProducts() {
                     <td className="px-6 py-4">{categoryName}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-baseline gap-2">
-                        <span className="font-semibold text-gray-900">
-                          ₫{product.price.toLocaleString('vi-VN')}
-                        </span>
+                        <span className="font-semibold text-gray-900">₫{product.price.toLocaleString("vi-VN")}</span>
                         {product.originalPrice && product.originalPrice > product.price && (
                           <span className="text-xs text-gray-400 line-through">
-                            ₫{product.originalPrice.toLocaleString('vi-VN')}
+                            ₫{product.originalPrice.toLocaleString("vi-VN")}
                           </span>
                         )}
                       </div>
@@ -352,10 +368,10 @@ export default function AdminProducts() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                            product.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                            product.isActive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                           }`}
                         >
-                          {product.isActive ? 'Đang bán' : 'Tạm ẩn'}
+                          {product.isActive ? "Đang bán" : "Tạm ẩn"}
                         </span>
                         {product.isFeatured && (
                           <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-primary-600 bg-primary-50">
@@ -368,7 +384,10 @@ export default function AdminProducts() {
                       <button onClick={() => handleEdit(product)} className="text-primary-600 hover:text-primary-800">
                         Sửa
                       </button>
-                      <button onClick={() => handleDelete(product._id)} className="ml-4 text-rose-500 hover:text-rose-600">
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        className="ml-4 text-rose-500 hover:text-rose-600"
+                      >
                         Xóa
                       </button>
                     </td>
@@ -382,4 +401,3 @@ export default function AdminProducts() {
     </div>
   );
 }
-
