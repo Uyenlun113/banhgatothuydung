@@ -39,8 +39,8 @@ export default function PopularCategories() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {displayCategories.slice(0, 8).map((category, index) => (
             <Link
-              key={"_id" in category ? category._id : category.slug || index}
-              href={`/products?category=${"_id" in category ? category._id : category.slug}`}
+              key={"_id" in category ? category._id : index}
+              href={`/products?category=${"_id" in category ? category._id : ""}`}
               className="group rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_25px_60px_rgba(0,0,0,0.05)] transition hover:-translate-y-2 hover:border-primary-200"
             >
               <div className="flex items-center gap-4">
