@@ -3,10 +3,32 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, loading, logout } = useAuth(true);
+
+  // Skip auth check for login page
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const menuItems = [
     { href: "/admin", label: "Tổng quan", icon: "📊" },
@@ -87,7 +109,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   <span aria-hidden>↗</span> Về trang chủ
                 </Link>
-                <button className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-200/50">
+                <button 
+                  onClick={logout}
+                  className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-200/50"
+                >
                   Đăng xuất
                 </button>
               </div>

@@ -20,46 +20,17 @@ interface Product {
 
 export default function BestSellers() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [startIndex, setStartIndex] = useState(0);
 
   useEffect(() => {
-    fetch("/api/products?limit=8")
+    fetch("/api/products?limit=9")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setProducts(data.data);
+          setProducts(data.data.slice(0, 9));
         }
       })
       .catch((err) => console.error("Error fetching products:", err));
   }, []);
-
-  useEffect(() => {
-    if (!products.length) return;
-    const interval = setInterval(() => {
-      setStartIndex((prev) => (prev + 1) % products.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [products.length]);
-
-  const visibleProducts = () => {
-    if (!products.length) return [];
-    const result: Product[] = [];
-    for (let i = 0; i < Math.min(4, products.length); i++) {
-      const index = (startIndex + i) % products.length;
-      result.push(products[index]);
-    }
-    return result;
-  };
-
-  const handlePrev = () => {
-    if (!products.length) return;
-    setStartIndex((prev) => (prev - 1 + products.length) % products.length);
-  };
-
-  const handleNext = () => {
-    if (!products.length) return;
-    setStartIndex((prev) => (prev + 1) % products.length);
-  };
 
   return (
     <section className="py-16">
@@ -71,91 +42,88 @@ export default function BestSellers() {
             Danh sách được cập nhật dựa trên doanh số và lượt đánh giá của khách hàng
           </p>
         </div>
-        <div className="relative">
-          <button
-            onClick={handlePrev}
-            className="absolute left-[-50px] top-1/2 hidden -translate-y-1/2 rounded-full border border-gray-200 bg-white/80 p-3 text-gray-600 shadow-lg transition hover:border-primary-200 hover:text-primary-600 xl:flex"
-            aria-label="Sản phẩm trước"
-          >
-            ‹
-          </button>
-          <button
-            onClick={handleNext}
-            className="absolute right-[-50px] top-1/2 hidden -translate-y-1/2 rounded-full border border-gray-200 bg-white/80 p-3 text-gray-600 shadow-lg transition hover:border-primary-200 hover:text-primary-600 xl:flex"
-            aria-label="Sản phẩm tiếp theo"
-          >
-            ›
-          </button>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProducts().map((product) => (
-              <div
-                key={product._id}
-                className="flex h-full flex-col rounded-3xl border border-gray-100 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.05)] transition hover:-translate-y-2"
-              >
-                <Link href={`/products/${product.slug}`} className="relative block h-60 overflow-hidden rounded-t-3xl">
-                  {product?.images && product?.images.length > 0 ? (
-                    <img
-                      src={product?.images[0]}
-                      alt={product?.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-primary-50 text-6xl">🍰</div>
-                  )}
-                  {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-red-500">
-                      -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                    </span>
-                  )}
-                </Link>
 
-                <div className="flex flex-1 flex-col gap-4 p-5">
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>
-                      {product.category && typeof product.category !== "string"
-                        ? product?.category?.name
-                        : "Bánh Gato Thúy Dung"}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => (
+            <div
+              key={product._id}
+              className="flex h-full flex-col rounded-3xl border border-gray-100 bg-white shadow-[0_25px_60px_rgba(0,0,0,0.05)] transition hover:-translate-y-2"
+            >
+              <Link href={`/products/${product.slug}`} className="relative block h-60 overflow-hidden rounded-t-3xl">
+                {product?.images && product?.images.length > 0 ? (
+                  <img
+                    src={product?.images[0]}
+                    alt={product?.name}
+                    className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-primary-50 text-6xl">🍰</div>
+                )}
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-red-500">
+                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                  </span>
+                )}
+              </Link>
+
+              <div className="flex flex-1 flex-col gap-4 p-5">
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <span>
+                    {product.category && typeof product.category !== "string"
+                      ? product?.category?.name
+                      : "Bánh Gato Thúy Dung"}
+                  </span>
+                  {product.rating && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-1 text-primary-600">
+                      ★ {product.rating.toFixed(1)}
                     </span>
-                    {product.rating && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-1 text-primary-600">
-                        ★ {product.rating.toFixed(1)}
+                  )}
+                </div>
+                <Link
+                  href={`/products/${product.slug}`}
+                  className="text-lg font-semibold text-gray-900 hover:text-primary-600"
+                >
+                  {product.name}
+                </Link>
+                <p className="text-sm text-gray-500 line-clamp-2">
+                  {product.description || "Hương vị thủ công, nguyên liệu tươi mới mỗi ngày."}
+                </p>
+                <div className="mt-auto flex flex-col gap-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-primary-600">
+                      ₫{product.price.toLocaleString("vi-VN")}
+                    </span>
+                    {product.originalPrice && product.originalPrice > product.price && (
+                      <span className="text-sm text-gray-400 line-through">
+                        ₫{product.originalPrice.toLocaleString("vi-VN")}
                       </span>
                     )}
                   </div>
                   <Link
                     href={`/products/${product.slug}`}
-                    className="text-lg font-semibold text-gray-900 hover:text-primary-600"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                   >
-                    {product.name}
+                    Xem chi tiết
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
-                  <p className="text-sm text-gray-500 line-clamp-2">
-                    {product.description || "Hương vị thủ công, nguyên liệu tươi mới mỗi ngày."}
-                  </p>
-                  <div className="mt-auto flex flex-col gap-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-primary-600">
-                        ₫{product.price.toLocaleString("vi-VN")}
-                      </span>
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <span className="text-sm text-gray-400 line-through">
-                          ₫{product.originalPrice.toLocaleString("vi-VN")}
-                        </span>
-                      )}
-                    </div>
-                    <Link
-                      href={`/products/${product.slug}`}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
-                    >
-                      Xem chi tiết
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-primary-600 px-8 py-3 text-base font-semibold text-primary-600 transition hover:bg-primary-600 hover:text-white"
+          >
+            Xem thêm sản phẩm
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
