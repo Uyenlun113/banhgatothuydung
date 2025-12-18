@@ -63,7 +63,7 @@ export default function AboutPage() {
                 </p>
                 <p className="text-gray-600 leading-relaxed">
                   Thúy Dung nhận làm bánh sinh nhật trẻ em – người lớn, bánh cưới, bánh kỷ niệm, khai trương, cupcake –
-                  mini cake và cả bánh thiết kế theo mẫu khách gửi.
+                  mini cake, bánh thiết kế theo mẫu khách gửi. Ngoài ra còn nhận làm hoa tươi và tráp ăn hỏi truyền thống.
                 </p>
                 <Link
                   href="/contact"
@@ -86,13 +86,14 @@ export default function AboutPage() {
               <span className="text-sm font-semibold uppercase tracking-[0.3em] text-primary-500">Dịch vụ</span>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 { icon: "🎂", title: "Bánh sinh nhật", desc: "Trẻ em & người lớn, thiết kế theo yêu cầu" },
                 { icon: "💒", title: "Bánh tiệc cưới", desc: "Tiệc kỷ niệm, khai trương, sự kiện" },
                 { icon: "🧁", title: "Cupcake & Mini cake", desc: "Set teatime, tiệc nhỏ, quà tặng" },
                 { icon: "✨", title: "Bánh theo mẫu", desc: "Thiết kế theo hình ảnh khách gửi" },
                 { icon: "💐", title: "Hoa tươi", desc: "Hoa sinh nhật, hoa sự kiện, bó hoa theo yêu cầu" },
+                { icon: "🎁", title: "Tráp ăn hỏi", desc: "Tráp cưới truyền thống, tráp bánh kẹo, tráp hoa quả" },
               ].map((item, i) => (
                 <div
                   key={i}
