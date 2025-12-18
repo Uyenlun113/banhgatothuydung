@@ -17,10 +17,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải...</p>
+          <div className="w-14 h-14 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang tải...</p>
         </div>
       </div>
     );
@@ -39,12 +39,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const Sidebar = (
-    <aside className="flex h-full flex-col gap-6 bg-[#0f172a] px-6 py-10 text-white">
-      <div>
-        <p className="text-xs uppercase tracking-[0.4em] text-white/50">Bánh Gato Thúy Dung</p>
-        <p className="text-2xl font-semibold">Control Center</p>
+    <aside className="flex h-full flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 px-5 py-8 text-white">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-500 text-2xl shadow-lg shadow-primary-500/30">
+          🍰
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Bánh Gato</p>
+          <p className="text-lg font-bold">Thúy Dung</p>
+        </div>
       </div>
-      <nav className="space-y-1">
+
+      <nav className="flex-1 space-y-2">
         {menuItems.map((item) => {
           const active = pathname === item.href;
           return (
@@ -52,27 +58,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
-                active ? "bg-white text-[#0f172a]" : "text-white/70 hover:bg-white/10"
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
+                active
+                  ? "bg-primary-500 text-white shadow-lg shadow-primary-500/30"
+                  : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
               }`}
             >
               <span className="text-lg">{item.icon}</span>
               <span>{item.label}</span>
+              {active && (
+                <span className="ml-auto h-2 w-2 rounded-full bg-white"></span>
+              )}
             </Link>
           );
         })}
       </nav>
-      <div className="mt-auto rounded-2xl bg-white/10 p-4 text-sm text-white/80">
-        <p className="font-semibold">Hỗ trợ 24/7</p>
-        <p className="text-white/60">hello@banhgathuydung.vn</p>
+
+      <div className="mt-6 rounded-xl bg-slate-700/50 p-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-primary-500/20 flex items-center justify-center text-lg">
+            👤
+          </div>
+          <div>
+            <p className="font-semibold text-sm">{user?.name || "Admin"}</p>
+            <p className="text-xs text-slate-400">{user?.email}</p>
+          </div>
+        </div>
       </div>
     </aside>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50/50 via-white to-white">
       <div className="lg:flex">
-        <div className="hidden lg:fixed lg:bottom-0 lg:left-0 lg:top-0 lg:block lg:w-72">{Sidebar}</div>
+        <div className="hidden lg:fixed lg:bottom-0 lg:left-0 lg:top-0 lg:block lg:w-64">{Sidebar}</div>
 
         {mobileOpen && (
           <div
@@ -85,12 +104,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        <div className="flex-1 lg:ml-72">
-          <header className="sticky top-0 z-30 border-b border-white/50 bg-white/80 backdrop-blur-xl">
+        <div className="flex-1 lg:ml-64">
+          <header className="sticky top-0 z-30 border-b border-primary-100/50 bg-white/80 backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 py-4 lg:px-8">
               <div className="flex items-center gap-3">
                 <button
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 text-gray-600 lg:hidden"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary-200 text-primary-600 lg:hidden hover:bg-primary-50 transition"
                   onClick={() => setMobileOpen((prev) => !prev)}
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,20 +117,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </svg>
                 </button>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.4em] text-gray-400">Bánh Gato Thúy Dung</p>
-                  <p className="text-xl font-semibold text-gray-900">Bảng điều khiển</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-primary-400">Admin Panel</p>
+                  <p className="text-xl font-bold text-gray-900">Bảng điều khiển</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Link
                   href="/"
-                  className="hidden items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary-200 hover:text-primary-600 lg:flex"
+                  className="hidden items-center gap-2 rounded-full border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-600 transition hover:bg-primary-50 lg:flex"
                 >
-                  <span aria-hidden>↗</span> Về trang chủ
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Xem trang chủ
                 </Link>
-                <button 
+                <button
                   onClick={logout}
-                  className="rounded-full bg-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-200/50"
+                  className="rounded-full bg-gradient-to-r from-primary-500 to-primary-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-200/50 hover:shadow-primary-300/50 transition-all hover:scale-[1.02]"
                 >
                   Đăng xuất
                 </button>
@@ -119,8 +141,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </header>
 
-          <main className="px-4 py-8 lg:px-10">
-            <div className="rounded-[40px] border border-white bg-white/90 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.08)]">
+          <main className="p-4 lg:p-8">
+            <div className="rounded-3xl border border-white bg-white p-6 shadow-[0_20px_50px_rgba(236,72,153,0.08)]">
               {children}
             </div>
           </main>

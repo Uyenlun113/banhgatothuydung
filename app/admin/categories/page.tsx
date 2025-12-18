@@ -94,11 +94,10 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 rounded-3xl border border-gray-100 bg-white/80 p-6 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-gray-400">Danh mục</p>
-          <h1 className="text-2xl font-semibold text-gray-900">Quản lý danh mục sản phẩm</h1>
-          <p className="text-sm text-gray-500">Tạo và cập nhật các nhóm sản phẩm để hiển thị trên trang chủ.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý danh mục</h1>
+          <p className="text-sm text-gray-500 mt-1">Tạo và cập nhật các nhóm sản phẩm để hiển thị trên trang chủ</p>
         </div>
         <button
           onClick={() => {
@@ -106,25 +105,31 @@ export default function AdminCategories() {
             setEditingCategory(null);
             setFormData({ name: "", slug: "", description: "", image: "", isActive: true });
           }}
-          className="inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-400 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary-200/50 transition hover:shadow-primary-300/50 hover:scale-[1.02]"
         >
-          <span aria-hidden>＋</span> Thêm danh mục
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Thêm danh mục
         </button>
       </div>
 
       {showForm && (
-        <div className="rounded-3xl border border-gray-100 bg-white/90 p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold text-gray-900">
+              {editingCategory ? "✏️ Chỉnh sửa danh mục" : "📁 Thêm danh mục mới"}
             </h2>
             <button
               onClick={() => {
                 setShowForm(false);
                 setEditingCategory(null);
               }}
-              className="text-sm text-gray-500 hover:text-gray-800"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition"
             >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
               Đóng
             </button>
           </div>
@@ -187,9 +192,9 @@ export default function AdminCategories() {
               />
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-primary-600 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
+                className="w-full rounded-xl bg-gradient-to-r from-primary-500 to-primary-400 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary-200/50 transition hover:shadow-primary-300/50 hover:scale-[1.01]"
               >
-                {editingCategory ? "Cập nhật danh mục" : "Tạo danh mục"}
+                {editingCategory ? "💾 Cập nhật danh mục" : "✨ Tạo danh mục"}
               </button>
             </div>
           </form>

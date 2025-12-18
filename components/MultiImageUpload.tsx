@@ -39,6 +39,14 @@ export default function MultiImageUpload({ value, onChange, label = "Hình ảnh
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    // Check file sizes
+    for (const file of Array.from(files)) {
+      if (file.size > 3 * 1024 * 1024) {
+        alert("Một số file quá lớn! Vui lòng chọn file nhỏ hơn 3MB");
+        return;
+      }
+    }
+
     setUploading(true);
 
     try {
@@ -68,29 +76,57 @@ export default function MultiImageUpload({ value, onChange, label = "Hình ảnh
 
   return (
     <div>
-      <label className="block text-sm font-medium mb-1">{label}</label>
+      {label && <label className="block text-sm font-medium text-gray-700 mb-3">{label}</label>}
 
-      {value.length > 0 && (
-        <div className="grid grid-cols-4 gap-4 mb-3">
-          {value.map((url, index) => (
-            <div key={index} className="relative">
-              <img src={url} className="w-full h-32 object-cover rounded-lg" />
-              <button
-                type="button"
-                onClick={() => removeImage(index)}
-                className="absolute top-2 right-2 bg-red-600 text-white w-6 h-6 rounded-full"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="space-y-4">
+        {value.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {value.map((url, index) => (
+              <div key={index} className="relative group">
+                <img src={url} alt={`Image ${index + 1}`} className="w-full h-24 object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-      <label className="cursor-pointer bg-primary-600 text-white px-4 py-2 rounded-lg inline-block">
-        {uploading ? "Đang tải..." : "Thêm ảnh"}
-        <input type="file" accept="image/*" multiple onChange={handleFileChange} hidden disabled={uploading} />
-      </label>
+        <label className="cursor-pointer group block">
+          <input type="file" accept="image/*" multiple onChange={handleFileChange} hidden disabled={uploading} />
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center hover:border-primary-400 hover:bg-primary-50/50 transition">
+            {uploading ? (
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                <span className="text-sm text-gray-500">Đang tải lên...</span>
+              </div>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3 group-hover:bg-primary-100 transition">
+                  <svg className="w-6 h-6 text-gray-400 group-hover:text-primary-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-gray-600 group-hover:text-primary-600 transition">
+                  Thêm ảnh sản phẩm
+                </span>
+                <span className="text-xs text-gray-400 mt-1">Có thể chọn nhiều ảnh</span>
+              </>
+            )}
+          </div>
+        </label>
+
+        <p className="text-xs text-gray-400 text-center">
+          Allowed *.jpeg, *.jpg, *.png, *.gif • max size of 3 Mb
+        </p>
+      </div>
     </div>
   );
 }
