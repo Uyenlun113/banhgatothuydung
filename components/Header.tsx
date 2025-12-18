@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navLinks = [
@@ -12,6 +13,12 @@ const navLinks = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-primary-100 bg-white/80 backdrop-blur-xl">
@@ -30,7 +37,11 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-primary-50 hover:text-primary-600"
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  isActive(link.href)
+                    ? "bg-primary-600 text-white"
+                    : "text-gray-600 hover:bg-primary-50 hover:text-primary-600"
+                }`}
               >
                 {link.label}
               </Link>
@@ -84,19 +95,6 @@ export default function Header() {
                 />
               </svg>
             </Link>
-            <button className="hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-primary-200 hover:text-primary-600 relative">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <span className="absolute -top-1 -right-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] font-semibold text-white">
-                0
-              </span>
-            </button>
             <button
               className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 text-gray-700 lg:hidden"
               onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -115,7 +113,11 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-primary-50 hover:text-primary-600"
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                    isActive(link.href)
+                      ? "bg-primary-600 text-white"
+                      : "text-gray-700 hover:bg-primary-50 hover:text-primary-600"
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}

@@ -9,7 +9,6 @@ export default function AdminDashboard() {
     promotions: 0,
     banners: 0,
   });
-  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -29,31 +28,6 @@ export default function AdminDashboard() {
         banners: banners.success ? banners.data.length : 0,
       });
     });
-  };
-
-  const handleSeedData = async () => {
-    if (!confirm("Bạn có chắc chắn muốn tạo dữ liệu mẫu? Dữ liệu cũ sẽ bị xóa!")) {
-      return;
-    }
-
-    setSeeding(true);
-    try {
-      const res = await fetch("/api/seed");
-      const data = await res.json();
-      if (data.success) {
-        alert(
-          `Đã tạo thành công:\n- ${data.data.categories} danh mục\n- ${data.data.products} sản phẩm\n- ${data.data.banners} banner`
-        );
-        fetchStats();
-      } else {
-        alert("Lỗi: " + data.error);
-      }
-    } catch (error) {
-      console.error("Seed error:", error);
-      alert("Lỗi khi tạo dữ liệu mẫu");
-    } finally {
-      setSeeding(false);
-    }
   };
 
   return (

@@ -103,22 +103,9 @@ export default function Hero() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 rounded-3xl bg-white/90 px-6 py-5 shadow-lg backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary-500">
-                  {banner?.title || "Ap cake shop"}
-                </p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">{banner?.subtitle || "Walnut honey ice cream"}</p>
-                <p className="mt-1 text-sm text-gray-500">Freshly churned every morning • Limited batch</p>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-6 left-1/2 w-full max-w-xs -translate-x-1/2 rounded-3xl border border-white bg-white/90 p-5 shadow-xl backdrop-blur">
-              <p className="text-sm text-gray-500">Hôm nay có gì mới?</p>
-              <div className="mt-3 flex items-center justify-between">
-                <div>
-                  <p className="text-lg font-semibold text-gray-900">Berry Velvet</p>
-                  <p className="text-sm text-gray-500">Bán chạy nhất tuần</p>
-                </div>
-                <div className="rounded-2xl bg-primary-100 px-3 py-2 text-sm font-semibold text-primary-600">120k</div>
+                <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary-500">Bánh gato Thúy Dung</p>
+                <p className="mt-2 text-2xl font-bold text-gray-900">Hãy nhấc máy gọi điện ngay cho chúng tôi !</p>
+                <p className="mt-1 text-sm text-gray-500">Được làm mới mỗi sáng • Số lượng có hạn</p>
               </div>
             </div>
           </div>
