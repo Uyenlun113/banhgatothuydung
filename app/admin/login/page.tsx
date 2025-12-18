@@ -36,7 +36,7 @@ export default function AdminLogin() {
 
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data.user));
-      router.push("/admin");
+      window.location.href = "/admin";
     } catch (err) {
       setError("Có lỗi xảy ra, vui lòng thử lại");
     } finally {
