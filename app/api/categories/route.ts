@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
+import mongoose from 'mongoose';
+
+// Import models - Category first since Product references it
 import Category from '@/models/Category';
 import Product from '@/models/Product';
 
@@ -9,6 +12,15 @@ export const revalidate = 300; // Revalidate mỗi 5 phút (categories ít thay 
 export async function GET() {
   try {
     await connectDB();
+    
+    // Ensure models are registered
+    if (!mongoose.models.Category) {
+      mongoose.model('Category', Category.schema);
+    }
+    if (!mongoose.models.Product) {
+      mongoose.model('Product', Product.schema);
+    }
+    
     const categories = await Category.find({})
       .select('-__v')
       .sort({ createdAt: -1 })
