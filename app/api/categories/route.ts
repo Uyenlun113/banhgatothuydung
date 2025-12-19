@@ -1,41 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import mongoose from 'mongoose';
-
-// Import models - Category first since Product references it
 import Category from '@/models/Category';
-import Product from '@/models/Product';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 300; // Revalidate mỗi 5 phút (categories ít thay đổi)
+export const revalidate = 300;
 
 export async function GET() {
   try {
     await connectDB();
     
-    // Ensure models are registered
-    if (!mongoose.models.Category) {
-      mongoose.model('Category', Category.schema);
-    }
-    if (!mongoose.models.Product) {
-      mongoose.model('Product', Product.schema);
-    }
-    
-    const categories = await Category.find({})
-      .select('-__v')
-      .sort({ createdAt: -1 })
-      .lean();
-    
-    // Đếm số sản phẩm cho mỗi danh mục
-    const categoriesWithCount = await Promise.all(
-      categories.map(async (category: any) => {
-        const productCount = await Product.countDocuments({ category: category._id, isActive: true });
-        return { ...category, productCount };
-      })
-    );
+    // Sử dụng aggregation để đếm sản phẩm thay vì import Product model
+    const categories = await Category.aggregate([
+      {
+        $lookup: {
+          from: 'products',
+          let: { categoryId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$category', '$$categoryId'] },
+                    { $eq: ['$isActive', true] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'products'
+        }
+      },
+      {
+        $addFields: {
+          productCount: { $size: '$products' }
+        }
+      },
+      {
+        $project: {
+          products: 0,
+          __v: 0
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      }
+    ]);
     
     return NextResponse.json(
-      { success: true, data: categoriesWithCount },
+      { success: true, data: categories },
       {
         headers: {
           'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
@@ -57,4 +69,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-
