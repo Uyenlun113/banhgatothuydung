@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
+import Category from '@/models/Category';
 import Product from '@/models/Product';
+
+// Ensure Category model is registered before Product uses it for populate
+const _Category = Category;
 
 export const dynamic = 'force-dynamic';
 

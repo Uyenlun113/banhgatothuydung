@@ -1,6 +1,10 @@
 import connectDB from '@/lib/mongodb';
+import Category from '@/models/Category';
 import Product from '@/models/Product';
 import { NextRequest, NextResponse } from 'next/server';
+
+// Ensure Category model is registered before Product uses it for populate
+const _Category = Category;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60; // Revalidate mỗi 60 giây
